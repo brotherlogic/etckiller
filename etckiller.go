@@ -7,6 +7,7 @@ import (
 	"log"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/brotherlogic/goserver"
 	"golang.org/x/net/context"
@@ -66,7 +67,11 @@ func (s *Server) run() {
 	for _, line := range lines {
 		fields := strings.Fields(line)
 		if len(fields) > 8 && fields[7] == "etcdctl" && fields[2] == "1" {
-			s.Log(fmt.Sprintf("FOUND: %v", line))
+			err := exec.Command("kill", fields[1])
+			if err != nil {
+				s.Log(fmt.Sprintf("Cannot kill %v -> %v", fields[1], err))
+			}
+			s.Log(fmt.Sprintf("Killing %v", fields[1]))
 		}
 	}
 }
@@ -89,7 +94,10 @@ func main() {
 		return
 	}
 
-	server.run()
+	go func() {
+		time.Sleep(time.Minute * 5)
+		server.run()
+	}()
 
 	fmt.Printf("%v", server.Serve())
 }
