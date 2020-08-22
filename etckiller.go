@@ -67,7 +67,7 @@ func (s *Server) run() {
 	for _, line := range lines {
 		fields := strings.Fields(line)
 		if len(fields) > 8 && fields[7] == "etcdctl" && fields[2] == "1" {
-			err := exec.Command("kill", fields[1])
+			err := exec.Command("kill", fields[1]).Run()
 			if err != nil {
 				s.Log(fmt.Sprintf("Cannot kill %v -> %v", fields[1], err))
 			}
