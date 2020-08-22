@@ -63,7 +63,12 @@ func (s *Server) run() {
 	}
 
 	lines := strings.Split(string(output), "\n")
-	s.Log(fmt.Sprintf("Read %v tasks", len(lines)))
+	for _, line := range lines {
+		fields := strings.Fields(line)
+		if len(fields) > 8 && fields[7] == "etcdctl" && fields[2] == "1" {
+			s.Log(fmt.Sprintf("FOUND: %v", line))
+		}
+	}
 }
 
 func main() {
