@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"time"
+	"os/exec"
+	"strings"
 
 	"github.com/brotherlogic/goserver"
 	"golang.org/x/net/context"
@@ -54,6 +55,17 @@ func (s *Server) GetState() []*pbg.State {
 	}
 }
 
+func (s *Server) run() {
+	output, err := exec.Command("ps", "-ef").Output()
+	if err != nil {
+		s.Log(fmt.Sprintf("Unable to run ps: %v", err))
+		return
+	}
+
+	lines := strings.Split(string(output), "\n")
+	s.Log(fmt.Sprintf("Read %v tasks", len(lines)))
+}
+
 func main() {
 	var quiet = flag.Bool("quiet", false, "Show all output")
 	flag.Parse()
@@ -72,19 +84,7 @@ func main() {
 		return
 	}
 
-	server.Log(fmt.Sprintf("Starting election"))
-	time.Sleep(time.Second * 2)
-	cancel, err := server.Elect()
-	if err != nil {
-		server.Log(fmt.Sprintf("Error performing election: %v", err))
-		time.Sleep(time.Second * 30)
-		return
-	}
-	server.Log(fmt.Sprintf("I have been elected"))
-	time.Sleep(time.Second * 6)
-	cancel()
-	server.Log(fmt.Sprintf("ELECTION IS COMPLETE"))
-	time.Sleep(time.Second * 5)
+	server.run()
 
 	fmt.Printf("%v", server.Serve())
 }
