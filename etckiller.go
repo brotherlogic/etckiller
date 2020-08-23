@@ -95,8 +95,10 @@ func main() {
 	}
 
 	go func() {
-		time.Sleep(time.Minute * 5)
-		server.run()
+		for true {
+			time.Sleep(time.Minute * 5)
+			server.run()
+		}
 	}()
 
 	fmt.Printf("%v", server.Serve())
